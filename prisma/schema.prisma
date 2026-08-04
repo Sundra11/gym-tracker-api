@@ -1,0 +1,87 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  email        String   @unique
+  username     String   @unique
+  passwordHash String
+  weeklyTarget Int      @default(3)
+  createdAt    DateTime @default(now())
+
+  workouts Workout[]
+  routines Routine[]
+}
+
+model Exercise {
+  id          String  @id @default(uuid())
+  name        String @unique
+  muscleGroup String
+  equipment   String?
+
+  workoutExercises WorkoutExercise[]
+  routineExercises RoutineExercise[]
+}
+
+model Workout {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  date      DateTime @default(now())
+  notes     String?
+  createdAt DateTime @default(now())
+  finishedAt DateTime?
+
+  user      User              @relation(fields: [userId], references: [id])
+  exercises WorkoutExercise[]
+}
+
+model WorkoutExercise {
+  id         String @id @default(uuid())
+  workoutId  String
+  exerciseId String
+  order      Int
+
+  workout  Workout  @relation(fields: [workoutId], references: [id])
+  exercise Exercise @relation(fields: [exerciseId], references: [id])
+  sets     Set[]
+}
+
+model Set {
+  id                String  @id @default(uuid())
+  workoutExerciseId String
+  weight            Float
+  reps              Int
+  rpe               Float?
+  restSeconds       Int?
+
+  workoutExercise WorkoutExercise @relation(fields: [workoutExerciseId], references: [id])
+}
+
+model Routine {
+  id        String   @id @default(uuid())
+  userId    String
+  name      String
+  createdAt DateTime @default(now())
+
+  user      User              @relation(fields: [userId], references: [id])
+  exercises RoutineExercise[]
+}
+
+model RoutineExercise {
+  id         String @id @default(uuid())
+  routineId  String
+  exerciseId String
+  order      Int
+  targetSets Int?
+  targetReps Int?
+
+  routine  Routine  @relation(fields: [routineId], references: [id])
+  exercise Exercise @relation(fields: [exerciseId], references: [id])
+}
