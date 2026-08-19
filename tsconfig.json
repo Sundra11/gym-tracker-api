@@ -13,5 +13,6 @@
     "skipLibCheck": true,
     "moduleResolution": "node",
     "resolveJsonModule": true
-  }
+  },
+  "exclude": ["prisma/seed.ts", "node_modules", "dist"]
 }
